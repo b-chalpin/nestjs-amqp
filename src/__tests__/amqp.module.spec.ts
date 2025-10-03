@@ -1,11 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AmqpModule } from './../index';
+import { AmqpModule, InjectAmqpConnection } from './../index';
 import { createConnectionToken } from '../utils/create.tokens';
 import { Module } from '@nestjs/common';
 const ChannelModel = require('amqplib/lib/channel_model').ChannelModel;
-import { ConfigModule, ConfigService } from 'nestjs-config';
-import * as path from 'path';
-import { InjectAmqpConnection } from '../decorators';
 
 describe('AmqpModule', () => {
   it('Instace Amqp', async () => {
@@ -139,12 +136,10 @@ describe('AmqpModule', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        ConfigModule.load(
-          path.resolve(__dirname, '__stubs__', 'config', '*.ts'),
-        ),
         AmqpModule.forRootAsync({
-          useFactory: async config => config.get('amqp'),
-          inject: [ConfigService],
+          useFactory: async (_config) => ({
+            hostname: process.env.HOST,
+          }),
         }),
       ],
       providers: [TestProvider],
